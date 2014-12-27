@@ -1,0 +1,15 @@
+require('./servers/clout');
+require('./servers/comments');
+require('./servers/groups');
+require('./servers/links');
+require('./servers/locations');
+require('./servers/members');
+require('./servers/orgs');
+require('./servers/passwords');
+require('./servers/posts');
+require('./servers/reviews');
+require('./servers/tags');
+require('./servers/thumbs');
+require('./servers/tokens');
+require('./servers/users');
+require('./servers/views');

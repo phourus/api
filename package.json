@@ -17,5 +17,8 @@
     "chai": "^1.10.0",
     "chai-as-promised": "^4.1.1",
     "mocha": "^2.1.0"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
 }
