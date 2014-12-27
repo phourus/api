@@ -1,0 +1,21 @@
+{
+  "name": "PhourusAPI",
+  "version": "0.0.1",
+  "contributors": [
+    {
+      "name": "Phourus",
+      "email": "info@phourus.com"
+    }
+  ],
+  "dependencies": {
+    "express": "4.0.x",
+    "mariasql": "^0.1.21",
+    "sequelize": "^2.0.0-rc3",
+    "socket.io": "^1.2.1"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "chai-as-promised": "^4.1.1",
+    "mocha": "^2.1.0"
+  }
+}
