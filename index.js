@@ -1,3 +1,4 @@
+require('./servers/account');
 require('./servers/clout');
 require('./servers/comments');
 require('./servers/groups');

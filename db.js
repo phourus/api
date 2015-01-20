@@ -1,5 +1,5 @@
 var Sequelize = require('sequelize');
-var db = 'phourus-api';
+var db = 'phourus-new';
 var username = 'root';
 var password = '';
 var config = {
