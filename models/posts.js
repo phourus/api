@@ -8,7 +8,7 @@ module.exports = db.define('posts', {
     modified: types.DATE,
     user_id: {type: types.INTEGER, allowNull: false},
     privacy: {type: types.ENUM('public', 'phourus', 'private'), defaultValue: 'private'},
-    type: types.ENUM('blogs', 'events', 'subjects', 'questions', 'answers', 'debates', 'bills', 'votes', 'quotes', 'timeline'),
+    type: types.ENUM('blog', 'event', 'subject', 'question', 'answer', 'debate', 'bill', 'vote', 'quote', 'belief', 'path'),
     title: types.STRING,
     content: types.TEXT,
     element: types.ENUM('world', 'mind', 'voice', 'self'),
@@ -55,13 +55,29 @@ module.exports = db.define('posts', {
             return this.findAndCountAll(this.queryize(params));
         },
         add: function (model) {
+            if (this.SESSION_USER === false) {
+                return 401;
+            }
+            model.user_id = this.SESSION_USER;
             return this.create(model);
         },
         save: function (id, model) {
-            return this.update(model, {where: {id: id}});
+            if (this.SESSION_USER === false) {
+                return 401;
+            }
+            return this.update(model, {where: {id: id, user_id: this.SESSION_USER}});
         },
         remove: function (id) {
-            return this.destroy({where: {id: id}});
+            if (this.SESSION_USER === false) {
+                return 401;
+            }
+            return this.destroy({where: {id: id, user_id: this.SESSION_USER}});
+        },
+        account: function () {
+            if (this.SESSION_USER === false) {
+                return 401;
+            }
+            return this.findAndCountAll({where: {user_id: this.SESSION_USER}});
         },
         queryize: function (params) {
             var defaults = {};

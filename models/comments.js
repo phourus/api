@@ -8,13 +8,14 @@ module.exports = db.define('comments', {
     content: types.TEXT
 }, {
     classMethods: {
-        single: function (id) {
-            return this.findOne(id);
-        },
         collection: function (params) {
             return this.findAndCountAll(this.queryize(params));
         },
         add: function (model) {
+            if (this.SESSION_USER === false) {
+                return 401;
+            }
+            model.user_id = this.SESSION_USER;
             return this.create(model);
         },
         save: function (id, model) {
@@ -24,7 +25,7 @@ module.exports = db.define('comments', {
             return this.destroy({where: {id: id}});
         },
         queryize: function (params) {
-            return {};
+            return {where: {post_id: params.post_id}};
         }
     }
 });

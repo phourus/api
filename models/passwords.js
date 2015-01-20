@@ -6,23 +6,21 @@ module.exports = db.define('passwords', {
     hash: types.STRING
 }, {
     classMethods: {
-        single: function (id) {
-            return this.findOne(id);
+        authorize: function (user_id, password) {
+            return this.findAndCountAll({where: {user_id: user_id, hash: this.hash(password)}});
         },
-        collection: function (params) {
-            return this.findAndCountAll(this.queryize(params));
-        },
-        add: function (model) {
-            return this.create(model);
-        },
-        save: function (id, model) {
-            return this.update(model, {where: {id: id}});
+        change: function (user_id, old, updated) {
+            return this.authorize(user_id, old).then(function (data) {
+                if (data.length === 1) {
+                    this.update(user_id, {hash: this.hash(updated)});
+                }
+            });
         },
         remove: function (id) {
             return this.destroy({where: {id: id}});
         },
-        queryize: function (params) {
-            return {};
+        hash: function (password) {
+            return password;
         }
     }
 });
