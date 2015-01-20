@@ -6,6 +6,8 @@ var rest = require('../rest').use('/posts', router);
 /** WEBSOCKET IMPLEMENTATION **/
 ws.on('connection', function (socket) {
   console.log('connected to posts server');
+  posts.SESSION_USER = socket.request.user_id;
+  
   socket.on('single', function (id) {
       posts.single(id)
         .then(function (data) {
@@ -16,6 +18,7 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('collection', function (params) {
+      console.log(socket.request.user_id);
       posts.collection(params)
         .then(function (data) {
             socket.emit('returnCollection', data);
@@ -24,22 +27,23 @@ ws.on('connection', function (socket) {
             
         });  
   });
-  socket.on('create', function (model) {
-    posts.create(model)
+  socket.on('add', function (model) {
+    posts.add(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            console.log(data);
+            socket.emit('returnAdd', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.log(err);
         }); 
   });
   socket.on('save', function (id, model) {
     posts.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnSave', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+        
         });
   });
   socket.on('remove', function (id) {
@@ -49,6 +53,15 @@ ws.on('connection', function (socket) {
         })
         .catch(function () {
             
+        });
+  });
+  socket.on('account', function () {
+     posts.account() 
+        .then(function (data) {
+            socket.emit('returnAccount', data);
+        })
+        .catch(function (err) {
+            console.log(err);
         });
   });
 });

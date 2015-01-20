@@ -6,37 +6,32 @@ var rest = require('../rest').use('/comments', router);
 /** WEBSOCKET IMPLEMENTATION **/
 ws.on('connection', function (socket) {
   console.log('connected to comments server');
-  socket.on('single', function (id) {
-      comments.single(id)
-        .then(function (data) {
-            socket.emit('returnSingle', data); 
-        })
-        .catch(function () {
-            
-        });
-  });
+  comments.SESSION_USER = socket.request.user_id;
+  
   socket.on('collection', function (params) {
+      console.log(params);
       comments.collection(params)
         .then(function (data) {
+            console.log(data);
             socket.emit('returnCollection', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.log(err);
         });  
   });
-  socket.on('create', function (model) {
-    comments.create(model)
+  socket.on('add', function (model) {
+    comments.add(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnAdd', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.log(err);
         }); 
   });
   socket.on('save', function (id, model) {
     comments.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnSave', data);
         })
         .catch(function () {
             
@@ -45,67 +40,10 @@ ws.on('connection', function (socket) {
   socket.on('remove', function (id) {
     comments.remove(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnRemove', data);
         })
         .catch(function () {
             
         });
   });
 });
-
-/** REST IMPLEMENTATION **/
-router.get('/:id', function (req, res) {
-    var id = req.params.id;
-    comments.single(id)
-        .then(function (data) {
-            console.log(data);
-            res.json(200, data);
-        })
-        .catch(function (data) {
-           console.log('ERR: ' + data); 
-           res.json(503);
-        });
-});
-router.get('', function (req, res) {
-    var params = req.query;
-    comments.collection(params)
-        .then(function (data) {
-            res.json(200, data);
-        })
-        .catch(function (data) {
-            console.log('ERR: ' + data);
-            res.json(503);
-        });
-});
-router.post('/', function (req, res) {
-    var model = {};
-    comments.create(model)
-        .then(function (data) {
-        
-        })
-        .catch(function (data) {
-        
-        });
-});
-router.put('/:id', function (req, res) {
-    var id = req.params.id;
-    var model = {};
-    comments.save(id, model)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-router.delete('/:id', function (req, res) {
-    var id = req.params.id;
-    comments.remove(id)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-
