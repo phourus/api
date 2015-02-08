@@ -11,7 +11,7 @@ module.exports = db.define('tags', {
             return this.findOne(id);
         },
         collection: function (params) {
-            return this.findAndCountAll(this.queryize(params));
+            return this.findAll(this.queryize(params));
         },
         add: function (model) {
             return this.create(model);
@@ -23,7 +23,9 @@ module.exports = db.define('tags', {
             return this.destroy({where: {id: id}});
         },
         queryize: function (params) {
-            return {};
+            if (params.post_id) {
+                return {where: {post_id: params.post_id}};
+            }    
         }
     }
 });

@@ -1,14 +1,18 @@
 var types = require('sequelize');
 var db = require('../db');
 
+var views = require('./views');
+var comments = require('./comments');
+var thumbs = require('./thumbs');
+
 module.exports = db.define('posts', {
     // Common
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true},
     created: {type: types.DATE, defaultValue: types.NOW},
     modified: types.DATE,
-    user_id: {type: types.INTEGER, allowNull: false},
+    user_id: {type: types.INTEGER},
     privacy: {type: types.ENUM('public', 'phourus', 'private'), defaultValue: 'private'},
-    type: types.ENUM('blog', 'event', 'subject', 'question', 'answer', 'debate', 'bill', 'vote', 'quote', 'belief', 'path'),
+    type: types.ENUM('blog', 'event', 'subject', 'question', 'debate', 'poll', 'quote', 'belief'),
     title: types.STRING,
     content: types.TEXT,
     element: types.ENUM('world', 'mind', 'voice', 'self'),
@@ -78,6 +82,30 @@ module.exports = db.define('posts', {
                 return 401;
             }
             return this.findAndCountAll({where: {user_id: this.SESSION_USER}});
+        },
+        updateStats: function (id) {
+              var self, where, viewTotal, commentTotal, thumbTotal;
+              where = {where: {post_id: id}};
+              wherePost = {where: {id: id}};
+              self = this;
+              // views
+              viewTotal = views.count(where)
+              .then(function (data) {
+                var model = {views: data};
+                self.update(model, wherePost);
+              });
+              // comments
+              commentTotal = comments.count(where)
+              .then(function (data) {
+                var model = {comments: data};
+                self.update(model, wherePost);
+              });
+              // thumbs
+              thumbTotal = thumbs.count({where: {id: id}})
+              .then(function (data) {
+                var model = {thumbs: data};
+                self.update(model, wherePost);
+              });    
         },
         queryize: function (params) {
             var defaults = {};

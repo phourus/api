@@ -3,15 +3,16 @@ var db = require('../db');
 
 module.exports = db.define('links', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true}, 
+    post_id: types.INTEGER,
     url: types.STRING,
-    type: types.ENUM('webpage', 'video', 'audio', 'image')
+    caption: types.STRING
 }, {
     classMethods: {
         single: function (id) {
             return this.findOne(id);
         },
         collection: function (params) {
-            return this.findAndCountAll(this.queryize(params));
+            return this.findAll(this.queryize(params));
         },
         add: function (model) {
             return this.create(model);
@@ -23,6 +24,9 @@ module.exports = db.define('links', {
             return this.destroy({where: {id: id}});
         },
         queryize: function (params) {
+            if (params.post_id) {
+                return {where: {post_id: params.post_id}};
+            }
             return {};
         }
     }
