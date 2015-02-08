@@ -6,106 +6,56 @@ var rest = require('../rest').use('/thumbs', router);
 /** WEBSOCKET IMPLEMENTATION **/
 ws.on('connection', function (socket) {
   console.log('connected to thumbs server');
+  thumbs.SESSION_USER = socket.request.user_id;
+  
   socket.on('single', function (id) {
       thumbs.single(id)
         .then(function (data) {
-            socket.emit('returnSingle', data); 
+            socket.emit('returnSingle', 200, data); 
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSingle', 503);
         });
   });
   socket.on('collection', function (params) {
       thumbs.collection(params)
         .then(function (data) {
-            socket.emit('returnCollection', data);
+            socket.emit('returnCollection', 200, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnCollection', 503);
         });  
   });
-  socket.on('create', function (model) {
-    thumbs.create(model)
+  socket.on('add', function (model) {
+    thumbs.add(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnAdd', 201, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnAdd', 503);
         }); 
   });
   socket.on('save', function (id, model) {
     thumbs.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnSave', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSave', 503);
         });
   });
   socket.on('remove', function (id) {
-    thumbs.remove(model)
+    thumbs.remove(id)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnRemove', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnRemove', 503);
         });
   });
 });
-
-/** REST IMPLEMENTATION **/
-router.get('/:id', function (req, res) {
-    var id = req.params.id;
-    thumbs.single(id)
-        .then(function (data) {
-            console.log(data);
-            res.json(200, data);
-        })
-        .catch(function (data) {
-           console.log('ERR: ' + data); 
-           res.json(503);
-        });
-});
-router.get('', function (req, res) {
-    var params = req.query;
-    thumbs.collection(params)
-        .then(function (data) {
-            res.json(200, data);
-        })
-        .catch(function (data) {
-            console.log('ERR: ' + data);
-            res.json(503);
-        });
-});
-router.post('/', function (req, res) {
-    var model = {};
-    thumbs.create(model)
-        .then(function (data) {
-        
-        })
-        .catch(function (data) {
-        
-        });
-});
-router.put('/:id', function (req, res) {
-    var id = req.params.id;
-    var model = {};
-    thumbs.save(id, model)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-router.delete('/:id', function (req, res) {
-    var id = req.params.id;
-    thumbs.remove(id)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-

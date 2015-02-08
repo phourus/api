@@ -9,103 +9,51 @@ ws.on('connection', function (socket) {
   socket.on('single', function (id) {
       tags.single(id)
         .then(function (data) {
-            socket.emit('returnSingle', data); 
+            socket.emit('returnSingle', 200, data); 
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSingle', 503);
         });
   });
   socket.on('collection', function (params) {
       tags.collection(params)
         .then(function (data) {
-            socket.emit('returnCollection', data);
+            socket.emit('returnCollection', 200, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnCollection', 503);
         });  
   });
-  socket.on('create', function (model) {
-    tags.create(model)
+  socket.on('add', function (model) {
+    tags.add(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnAdd', 201, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnAdd', 503);
         }); 
   });
   socket.on('save', function (id, model) {
     tags.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnSave', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSave', 503);
         });
   });
   socket.on('remove', function (id) {
-    tags.remove(model)
+    tags.remove(id)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnRemove', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnRemove', 503);
         });
   });
 });
-
-/** REST IMPLEMENTATION **/
-router.get('/:id', function (req, res) {
-    var id = req.params.id;
-    tags.single(id)
-        .then(function (data) {
-            console.log(data);
-            res.json(200, data);
-        })
-        .catch(function (data) {
-           console.log('ERR: ' + data); 
-           res.json(503);
-        });
-});
-router.get('', function (req, res) {
-    var params = req.query;
-    tags.collection(params)
-        .then(function (data) {
-            res.json(200, data);
-        })
-        .catch(function (data) {
-            console.log('ERR: ' + data);
-            res.json(503);
-        });
-});
-router.post('/', function (req, res) {
-    var model = {};
-    tags.create(model)
-        .then(function (data) {
-        
-        })
-        .catch(function (data) {
-        
-        });
-});
-router.put('/:id', function (req, res) {
-    var id = req.params.id;
-    var model = {};
-    tags.save(id, model)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-router.delete('/:id', function (req, res) {
-    var id = req.params.id;
-    tags.remove(id)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-

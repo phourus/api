@@ -9,46 +9,51 @@ ws.on('connection', function (socket) {
   socket.on('single', function (id) {
       clout.single(id)
         .then(function (data) {
-            socket.emit('returnSingle', data); 
+            socket.emit('returnSingle', 200, data); 
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSingle', 503);
         });
   });
   socket.on('collection', function (params) {
       clout.collection(params)
         .then(function (data) {
-            socket.emit('returnCollection', data);
+            socket.emit('returnCollection', 200, data);
         })
-        .catch(function () {
-            
-        });  
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnCollection', 503);
+        });
   });
   socket.on('create', function (model) {
     clout.create(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnCreate', 201, data);
         })
-        .catch(function () {
-            
-        }); 
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnCreate', 503);
+        });
   });
   socket.on('save', function (id, model) {
     clout.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnSave', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSave', 503);
         });
   });
   socket.on('remove', function (id) {
     clout.remove(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnRemove', 202, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnRemove', 503);
         });
   });
 });

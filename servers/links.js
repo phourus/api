@@ -11,8 +11,9 @@ ws.on('connection', function (socket) {
         .then(function (data) {
             socket.emit('returnSingle', data); 
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSingle', 503);
         });
   });
   socket.on('collection', function (params) {
@@ -20,92 +21,39 @@ ws.on('connection', function (socket) {
         .then(function (data) {
             socket.emit('returnCollection', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnCollection', 503);
         });  
   });
-  socket.on('create', function (model) {
-    links.create(model)
+  socket.on('add', function (model) {
+    links.add(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnAdd', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnAdd', 503);
         }); 
   });
   socket.on('save', function (id, model) {
     links.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnSave', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSave', 503);
         });
   });
   socket.on('remove', function (id) {
-    links.remove(model)
+    links.remove(id)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('returnRemove', data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnRemove', 503);
         });
   });
 });
-
-/** REST IMPLEMENTATION **/
-router.get('/:id', function (req, res) {
-    var id = req.params.id;
-    links.single(id)
-        .then(function (data) {
-            console.log(data);
-            res.json(200, data);
-        })
-        .catch(function (data) {
-           console.log('ERR: ' + data); 
-           res.json(503);
-        });
-});
-router.get('', function (req, res) {
-    var params = req.query;
-    links.collection(params)
-        .then(function (data) {
-            res.json(200, data);
-        })
-        .catch(function (data) {
-            console.log('ERR: ' + data);
-            res.json(503);
-        });
-});
-router.post('/', function (req, res) {
-    var model = {};
-    links.create(model)
-        .then(function (data) {
-        
-        })
-        .catch(function (data) {
-        
-        });
-});
-router.put('/:id', function (req, res) {
-    var id = req.params.id;
-    var model = {};
-    links.save(id, model)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-router.delete('/:id', function (req, res) {
-    var id = req.params.id;
-    links.remove(id)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-

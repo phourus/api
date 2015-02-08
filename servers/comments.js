@@ -13,37 +13,41 @@ ws.on('connection', function (socket) {
       comments.collection(params)
         .then(function (data) {
             console.log(data);
-            socket.emit('returnCollection', data);
+            socket.emit('returnCollection', 200, data);
         })
         .catch(function (err) {
-            console.log(err);
+            console.error(err);
+            socket.emit('returnCollection', 503);
         });  
   });
   socket.on('add', function (model) {
     comments.add(model)
         .then(function (data) {
-            socket.emit('returnAdd', data);
+            socket.emit('returnAdd', 201, data);
         })
         .catch(function (err) {
-            console.log(err);
+            console.error(err);
+            socket.emit('returnAdd', 503);
         }); 
   });
   socket.on('save', function (id, model) {
     comments.save(id, model)
         .then(function (data) {
-            socket.emit('returnSave', data);
+            socket.emit('returnSave', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnSave', 503);
         });
   });
   socket.on('remove', function (id) {
     comments.remove(model)
         .then(function (data) {
-            socket.emit('returnRemove', data);
+            socket.emit('returnRemove', 204, data);
         })
-        .catch(function () {
-            
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('returnRemove', 503);
         });
   });
 });
