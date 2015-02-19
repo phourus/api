@@ -1,18 +1,24 @@
 var Chance = require('chance');
 
 var Users = require('../models/users');
+var Passwords = require('../models/passwords');
+
 var Posts = require('../models/posts');
-var Orgs = require('../models/orgs');
+var Links = require('../models/links');
+var Tags = require('../models/tags');
+
 var Views = require('../models/views');
 var Thumbs = require('../models/thumbs');
 var Comments = require('../models/comments');
+
 var Locations = require('../models/locations');
-var Links = require('../models/links');
-var Tags = require('../models/tags');
+
+/*
+var Orgs = require('../models/orgs');
 var Clouts = require('../models/clout');
 var Reviews = require('../models/reviews');
 var Members = require('../models/members');
-var Passwords = require('../models/passwords');
+*/
 
 var chance = new Chance();
 
@@ -40,7 +46,7 @@ var User = function User () {
 
 var Post = function Post () {
   return {
-    user_id: chance.integer({min: 1, max: USER_TOTAL}),
+    userId: chance.integer({min: 1, max: USER_TOTAL}),
     privacy: ['public', 'phourus', 'private'][chance.integer({min: 0, max: 2})],
     type: ['blog', 'event', 'subject', 'question', 'debate', 'poll', 'quote', 'belief'][chance.integer({min: 0, max: 7})],
     title: chance.sentence(),
@@ -62,39 +68,39 @@ var Post = function Post () {
 }
 
 var View = function View () {
-    return {
+    var rndm = [{KEY: 'userId', MAX: USER_TOTAL}, {KEY: 'postId', MAX: POST_TOTAL}, {KEY: 'orgId', MAX: ORG_TOTAL}][chance.integer({min: 0, max: 1})];
+    var out = {
         ip: chance.ip(),
         path: '/',
-        user_id: chance.integer({min: 1, max: USER_TOTAL}),
-        org_id: 1,
-        post_id: 1,
         location: '',
-        viewer_id: chance.integer({min: 1, max: USER_TOTAL}),
+        viewerId: chance.integer({min: 1, max: USER_TOTAL}),
         referer: chance.url(),
         exit: chance.url()
     }
+    out[rndm.KEY] = chance.integer({min: 1, max: rndm.MAX});
+    return out;
 }
 
 var Thumb = function Thumb () {
     return {
-        post_id: chance.integer({min: 1, max: POST_TOTAL}),
-        user_id: chance.integer({min: 1, max: USER_TOTAL}),
+        postId: chance.integer({min: 1, max: POST_TOTAL}),
+        userId: chance.integer({min: 1, max: USER_TOTAL}),
         positive: chance.bool()       
     }
 }
 
 var Comment = function Comment () {
     return {
-        user_id: chance.integer({min: 1, max: USER_TOTAL}),
-        post_id: chance.integer({min: 1, max: 10}),
+        userId: chance.integer({min: 1, max: USER_TOTAL}),
+        postId: chance.integer({min: 1, max: POST_TOTAL}),
         content: chance.paragraph()        
     }
 }
 
 var Location = function Location () {
     return {
-        org_id: chance.integer({min: 1, max: ORG_TOTAL}),
-        user_id: chance.integer({min: 1, max: USER_TOTAL}),
+        //orgId: chance.integer({min: 1, max: ORG_TOTAL}),
+        userId: chance.integer({min: 1, max: USER_TOTAL}),
         street: chance.street(),
         city: chance.city(),
         county: chance.province(),
@@ -109,7 +115,7 @@ var Location = function Location () {
 
 var Link = function Link () {
     return {
-        post_id: chance.integer({min: 1, max: POST_TOTAL}),
+        postId: chance.integer({min: 1, max: POST_TOTAL}),
         url: chance.url(),
         caption: chance.sentence()      
     }
@@ -117,7 +123,7 @@ var Link = function Link () {
 
 var Tag = function Tag () {
     return {
-        post_id: chance.integer({min: 1, max: POST_TOTAL}),
+        postId: chance.integer({min: 1, max: POST_TOTAL}),
         tag: chance.word()
     }
 
@@ -174,7 +180,7 @@ var Member = function Member () {
 
 var Password = function Password () {
     return {
-        user_id: chance.integer({min: 1, max: USER_TOTAL}), 
+        userId: chance.integer({min: 1, max: USER_TOTAL}), 
         hash: Passwords.hash('phourus')     
     }    
 }
@@ -191,18 +197,31 @@ function generate (Model, count, db) {
     }   
 }
 
+function passwords (Model, count, db) {
+    var i = 0;
+    while (i < count) {
+        var model = new Model();
+        db.create(model).catch(function(err) {
+            console.log(err);
+        });
+        i++;
+    }       
+}
 /** EXECUTE **/
 generate(User, USER_TOTAL, Users);
 generate(Post, POST_TOTAL, Posts);
-generate(Org, ORG_TOTAL, Orgs);
-generate(View, 500, Views);
+//generate(Org, ORG_TOTAL, Orgs);
+
+passwords(Password, USER_TOTAL, Passwords);
+generate(Tag, 400, Tags);
+generate(Link, 200, Links);
+generate(View, 200, Views);
 generate(Thumb, 200, Thumbs);
 generate(Comment, 100, Comments);
 generate(Location, 100, Locations);
-generate(Link, 200, Links);
-generate(Tag, 400, Tags);
+
+/*
 generate(Member, 200, Members);
 generate(Clout, 200, Clouts);
 generate(Review, 200, Reviews);
-// Password is part of User Registration transaction, must isolate/redesign API
-//generate(Password, 200, Passwords);
+*/
