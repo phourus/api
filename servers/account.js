@@ -17,8 +17,9 @@ var jwt = require('jsonwebtoken');
 ws.on('connection', function (socket) {
   console.log('connected to account server');
   var SESSION_USER = socket.request.user_id;
+  console.log(SESSION_USER);
 
-  socket.on('register', function (email, password) {           
+  socket.on('postRegister', function (email, password) {           
     return db.transaction(function (t) {
       return users.create({email: email}, {transaction: t})
         .then(function (user) {
@@ -28,19 +29,20 @@ ws.on('connection', function (socket) {
     })
     .then(function (result) {
         console.log(result);
-        socket.emit('returnRegister', 202);
+        socket.emit('register', 202);
     })
     .catch(function (err) {
         console.error(err);
         // duplicate email
-        socket.emit('returnRegister', 409);
+        socket.emit('register', 409);
     });
   });
-  socket.on('login', function (username, password) {
+  socket.on('postLogin', function (username, password) {
       return users.getID (username)
         .then(function (data) {
             if (data === null) {
-                socket.emit('returnLogin', 503);
+                console.error('username not found');
+                socket.emit('login', 503);
                 //done();
             }
             return data.id;
@@ -49,8 +51,8 @@ ws.on('connection', function (socket) {
             return passwords.authorize(user_id, password)
                 .then(function (data) {
                     if (data.count !== 1) {
-                        console.log('user_id + hash not found');
-                        return 0;
+                        console.error('user_id + hash not found');
+                        socket.emit('login', 503);
                     }
                     return user_id;
                 });
@@ -59,97 +61,130 @@ ws.on('connection', function (socket) {
             if (result !== 0) {
                 result = jwt.sign({user_id: result}, '123abc');  
             }
-            socket.emit('returnLogin', 200, result);
+            socket.emit('login', 200, result);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnLogin', 503);
+            socket.emit('login', 503);
         });  
   });
-  socket.on('get', function (id, model) {
+  socket.on('getGet', function (id, model) {
     users.single(SESSION_USER)
         .then(function (data) {
-            socket.emit('returnGet', 200, data);
+            socket.emit('get', 200, data);
         })
         .catch(function (err) {
             console.log(err);
-            socket.emit('returnGet', 503);
+            socket.emit('get', 503);
         });
   });
-  socket.on('edit', function (model) {
+  socket.on('putEdit', function (model) {
     users.update(model, {where: {id: SESSION_USER}})
         .then(function (data) {
             console.log(data);
-            socket.emit('returnEdit', 204, data);
+            socket.emit('edit', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnEdit', 503);
+            socket.emit('edit', 503);
         });
   });
-  socket.on('deactivate', function () {
+  socket.on('delDeactivate', function () {
     users.update({status: 'closed'}, {where: {id: SESSION_USER}})
         .then(function (data) {
-            socket.emit('returnDeactivate', 202, data);
+            socket.emit('deactivate', 202, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnDeactivate', 503);
+            socket.emit('deactivate', 503);
         });
   });
-  socket.on('password', function (current, changed) {
+  socket.on('putPassword', function (current, changed) {
      var hash = passwords.hash(changed);
      passwords.update({hash: hash}, {where: {user_id: SESSION_USER, hash: passwords.hash(current)}})
         .then(function (data) {
-            socket.emit('returnPassword', 204, data);
+            socket.emit('password', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnPassword', 503);
+            socket.emit('password', 503);
         });
   });
-  socket.on('notifications', function (params) {
-     posts.findAll({where: {user_id: SESSION_USER}})
+  socket.on('getNotifications', function (params) {
+     posts.findAll({where: {userId: SESSION_USER}})
         .then(function (data) {
             var promises = [];
             var list = [1,2,3];
             // my profile views
-            promises.push(views.findAll({where: {user_id: SESSION_USER}}));
+            promises.push(views.findAll({
+                where: {userId: SESSION_USER},
+                include: [
+                    {model: users, as: "viewer"}
+                ]
+            }));
             // comments on my posts
-            promises.push(comments.findAll({where: {post_id: {in: list}}}));
+            promises.push(comments.findAll({
+                where: {postId: {in: list}}, 
+                include: [
+                    {model: users, as: "user"}, 
+                    {model: posts, as: "post"}
+                ]
+            }));
             // thumbs on my posts
-            promises.push(thumbs.findAll({where: {post_id: {in: list}}}));
+            promises.push(thumbs.findAll({
+                where: {postId: {in: list}},
+                include: [
+                    {model: users, as: "user"}, 
+                    {model: posts, as: "post"}
+                ]
+            }));
             // those who have faved me
             //promises.push(favs.findAll({where: {to_id: SESSION_USER}));
             // ? new post by one of my favs
             return db.Promise.all(promises);
         })
         .then(function (data) {
-            socket.emit('returnNotifications', 200, data);
+            socket.emit('notifications', 200, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnNotifications', 503);
+            socket.emit('notifications', 503);
         });
   });
-  socket.on('history', function (params) {
+  socket.on('getHistory', function (params) {
         var promises = [];
         // posts, users and orgs I've viewed
-        promises.push(views.findAll({where: {viewer_id: SESSION_USER}}));
+        promises.push(views.findAll({
+            where: {viewerId: SESSION_USER},
+            include: [
+                //{model: users, as: "user"},
+                {model: posts, as: "post"}
+            ]
+        }));
         // comments I've made
-        promises.push(comments.findAll({where: {user_id: SESSION_USER}}));
+        promises.push(comments.findAll({
+            where: {userId: SESSION_USER},
+            include: [
+                {model: posts, as: "post", include: [{model: users, as: "user"}]}
+            ]
+        }));
         // thumbs I gave
-        promises.push(thumbs.findAll({where: {user_id: SESSION_USER}}));
+        promises.push(thumbs.findAll({
+            where: {userId: SESSION_USER},
+            include: [
+                {model: posts, as: "post", include: [{model: users, as: "user"}]}
+            ]
+        }));
         // users I've faved
         //promises.push(favs.findAll({where: {from_id: SESSION_USER}));
         
         db.Promise.all(promises)
             .then(function (data) {
-                socket.emit('returnHistory', 200, data);
+                socket.emit('history', 200, data);
             })  
             .catch(function (err) {
                 console.log(err);
-                socket.emit('returnHistory', 503);
+                socket.emit('history', 503);
             });
   });
 });

@@ -6,54 +6,55 @@ var rest = require('../rest').use('/tags', router);
 /** WEBSOCKET IMPLEMENTATION **/
 ws.on('connection', function (socket) {
   console.log('connected to tags server');
-  socket.on('single', function (id) {
+  
+  socket.on('getSingle', function (id) {
       tags.single(id)
         .then(function (data) {
-            socket.emit('returnSingle', 200, data); 
+            socket.emit('single', 200, data); 
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnSingle', 503);
+            socket.emit('single', 503);
         });
   });
-  socket.on('collection', function (params) {
+  socket.on('getCollection', function (params) {
       tags.collection(params)
         .then(function (data) {
-            socket.emit('returnCollection', 200, data);
+            socket.emit('collection', 200, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnCollection', 503);
+            socket.emit('collection', 503);
         });  
   });
-  socket.on('add', function (model) {
+  socket.on('postAdd', function (model) {
     tags.add(model)
         .then(function (data) {
-            socket.emit('returnAdd', 201, data);
+            socket.emit('add', 201, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnAdd', 503);
+            socket.emit('add', 503);
         }); 
   });
-  socket.on('save', function (id, model) {
+  socket.on('putSave', function (id, model) {
     tags.save(id, model)
         .then(function (data) {
-            socket.emit('returnSave', 204, data);
+            socket.emit('save', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnSave', 503);
+            socket.emit('save', 503);
         });
   });
-  socket.on('remove', function (id) {
+  socket.on('delRemove', function (id) {
     tags.remove(id)
         .then(function (data) {
-            socket.emit('returnRemove', 204, data);
+            socket.emit('remove', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnRemove', 503);
+            socket.emit('remove', 503);
         });
   });
 });

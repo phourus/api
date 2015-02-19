@@ -9,68 +9,68 @@ ws.on('connection', function (socket) {
   console.log('connected to posts server');
   posts.SESSION_USER = socket.request.user_id;
   
-  socket.on('single', function (id) {
+  socket.on('getSingle', function (id) {
       posts.single(id)
         .then(function (data) {
-            socket.emit('returnSingle', 200, data); 
+            socket.emit('single', 200, data); 
             posts.updateStats(id);
-            views.add({post_id: id});
+            views.add({postId: id});
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnSingle', 503);
+            socket.emit('single', 503);
         });
   });
-  socket.on('collection', function (params) {
+  socket.on('getCollection', function (params) {
       console.log(socket.request.user_id);
       posts.collection(params)
         .then(function (data) {
-            socket.emit('returnCollection', 200, data);
+            socket.emit('collection', 200, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnCollection', 503);
+            socket.emit('collection', 503);
         });
   });
-  socket.on('add', function (model) {
+  socket.on('postAdd', function (model) {
     posts.add(model)
         .then(function (data) {
             console.log(data);
-            socket.emit('returnAdd', 201, data);
+            socket.emit('add', 201, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnAdd', 503);
+            socket.emit('add', 503);
         }); 
   });
-  socket.on('save', function (id, model) {
+  socket.on('putSave', function (id, model) {
     posts.save(id, model)
         .then(function (data) {
-            socket.emit('returnSave', 204, data);
+            socket.emit('save', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnSave', 503);
+            socket.emit('save', 503);
         });
   });
-  socket.on('remove', function (id) {
+  socket.on('delRemove', function (id) {
     posts.remove(model)
         .then(function (data) {
-            socket.emit('returnRemove', 202, data);
+            socket.emit('remove', 202, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnRemove', 503);
+            socket.emit('remove', 503);
         });
   });
-  socket.on('account', function () {
+  socket.on('getAccount', function () {
      posts.account() 
         .then(function (data) {
-            socket.emit('returnAccount', 200, data);
+            socket.emit('account', 200, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnRemove', 503);
+            socket.emit('account', 503);
         });
   });
 });

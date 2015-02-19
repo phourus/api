@@ -8,46 +8,46 @@ ws.on('connection', function (socket) {
   console.log('connected to comments server');
   comments.SESSION_USER = socket.request.user_id;
   
-  socket.on('collection', function (params) {
+  socket.on('getCollection', function (params) {
       console.log(params);
       comments.collection(params)
         .then(function (data) {
             console.log(data);
-            socket.emit('returnCollection', 200, data);
+            socket.emit('collection', 200, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnCollection', 503);
+            socket.emit('collection', 503);
         });  
   });
-  socket.on('add', function (model) {
+  socket.on('postAdd', function (model) {
     comments.add(model)
         .then(function (data) {
-            socket.emit('returnAdd', 201, data);
+            socket.emit('add', 201, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnAdd', 503);
+            socket.emit('add', 503);
         }); 
   });
-  socket.on('save', function (id, model) {
+  socket.on('putSave', function (id, model) {
     comments.save(id, model)
         .then(function (data) {
-            socket.emit('returnSave', 204, data);
+            socket.emit('save', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnSave', 503);
+            socket.emit('save', 503);
         });
   });
-  socket.on('remove', function (id) {
+  socket.on('delRemove', function (id) {
     comments.remove(model)
         .then(function (data) {
-            socket.emit('returnRemove', 204, data);
+            socket.emit('remove', 204, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('returnRemove', 503);
+            socket.emit('remove', 503);
         });
   });
 });

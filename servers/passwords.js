@@ -6,106 +6,50 @@ var rest = require('../rest').use('/passwords', router);
 /** WEBSOCKET IMPLEMENTATION **/
 ws.on('connection', function (socket) {
   console.log('connected to passwords server');
-  socket.on('single', function (id) {
+  
+  socket.on('getSingle', function (id) {
       passwords.single(id)
         .then(function (data) {
-            socket.emit('returnSingle', data); 
+            socket.emit('single', data); 
         })
         .catch(function () {
             
         });
   });
-  socket.on('collection', function (params) {
+  socket.on('getCollection', function (params) {
       passwords.collection(params)
         .then(function (data) {
-            socket.emit('returnCollection', data);
+            socket.emit('collection', data);
         })
         .catch(function () {
             
         });  
   });
-  socket.on('create', function (model) {
+  socket.on('postCreate', function (model) {
     passwords.create(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('create', data);
         })
         .catch(function () {
             
         }); 
   });
-  socket.on('save', function (id, model) {
+  socket.on('putSave', function (id, model) {
     passwords.save(id, model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('save', data);
         })
         .catch(function () {
             
         });
   });
-  socket.on('remove', function (id) {
+  socket.on('delRemove', function (id) {
     passwords.remove(model)
         .then(function (data) {
-            socket.emit('returnCreate', data);
+            socket.emit('remove', data);
         })
         .catch(function () {
             
         });
   });
 });
-
-/** REST IMPLEMENTATION **/
-router.get('/:id', function (req, res) {
-    var id = req.params.id;
-    passwords.single(id)
-        .then(function (data) {
-            console.log(data);
-            res.json(200, data);
-        })
-        .catch(function (data) {
-           console.log('ERR: ' + data); 
-           res.json(503);
-        });
-});
-router.get('', function (req, res) {
-    var params = req.query;
-    passwords.collection(params)
-        .then(function (data) {
-            res.json(200, data);
-        })
-        .catch(function (data) {
-            console.log('ERR: ' + data);
-            res.json(503);
-        });
-});
-router.post('/', function (req, res) {
-    var model = {};
-    passwords.create(model)
-        .then(function (data) {
-        
-        })
-        .catch(function (data) {
-        
-        });
-});
-router.put('/:id', function (req, res) {
-    var id = req.params.id;
-    var model = {};
-    passwords.save(id, model)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-router.delete('/:id', function (req, res) {
-    var id = req.params.id;
-    passwords.remove(id)
-        .then(function (data) {
-            
-        })
-        .catch(function (data) {
-            
-        });
-});
-
