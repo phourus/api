@@ -3,7 +3,7 @@ var db = require('../db');
 
 module.exports = db.define('clout', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true}, 
-    org_id: types.INTEGER,
+    // org_id
     type: types.ENUM('press', 'award'),
     title: types.STRING,
     date: types.DATE,

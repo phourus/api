@@ -1,9 +1,10 @@
+var tags;
 var types = require('sequelize');
 var db = require('../db');
 
-module.exports = db.define('tags', {
+module.exports = tags = db.define('tags', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true},
-    post_id: types.INTEGER,
+    //post_id: types.INTEGER,
     tag: types.STRING(20) 
 }, {
     classMethods: {
@@ -23,10 +24,12 @@ module.exports = db.define('tags', {
             return this.destroy({where: {id: id}});
         },
         queryize: function (params) {
+            console.log(params);
             if (params.post_id) {
-                return {where: {post_id: params.post_id}};
+                return {where: {postId: params.post_id}};
             }    
+            
+            return {where: {id: 0}};
         }
     }
 });
-

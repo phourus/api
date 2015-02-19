@@ -1,9 +1,9 @@
 var types = require('sequelize');
 var db = require('../db');
 
-module.exports = db.define('links', {
+var links = db.define('links', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true}, 
-    post_id: types.INTEGER,
+    //post_id: types.INTEGER,
     url: types.STRING,
     caption: types.STRING
 }, {
@@ -31,4 +31,4 @@ module.exports = db.define('links', {
         }
     }
 });
-
+module.exports = links;

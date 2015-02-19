@@ -3,8 +3,6 @@ var db = require('../db');
 
 module.exports = db.define('thumbs', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true}, 
-    post_id: types.INTEGER,
-    user_id: types.INTEGER,
     positive: types.BOOLEAN
 }, {
     classMethods: {

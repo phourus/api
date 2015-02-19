@@ -1,10 +1,9 @@
+var locations;
 var types = require('sequelize');
 var db = require('../db');
 
-module.exports = db.define('locations', {
+module.exports = locations = db.define('locations', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true}, 
-    org_id: types.INTEGER,
-    user_id: types.INTEGER,
     street: types.STRING(120),
     city: types.STRING(40),
     county: types.STRING(20),
@@ -36,4 +35,4 @@ module.exports = db.define('locations', {
         }
     }
 });
-
+    

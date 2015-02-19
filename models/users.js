@@ -1,7 +1,15 @@
+var users;
 var types = require('sequelize');
 var db = require('../db');
 
-module.exports = db.define('users', {
+var passwords = require('./passwords');
+var locations = require('./locations');
+var views = require('./views');
+var thumbs = require('./thumbs');
+var comments = require('./comments');
+
+
+var users = db.define('users', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true},
     status: types.ENUM('new', 'active', 'inactive', 'closed'),
     username: types.STRING(20),
@@ -47,4 +55,26 @@ module.exports = db.define('users', {
         }
     }
 });
+// passwords
+users.hasOne(passwords);
+passwords.belongsTo(users);
 
+// locations
+users.hasMany(locations);
+locations.belongsTo(users);
+
+// views
+users.hasMany(views);
+//views.belongsTo(users, {as: "user"});
+users.hasMany(views, {foreignKey: {name: 'viewerId'}});
+views.belongsTo(users, {as: "viewer"});
+
+// thumbs 
+users.hasMany(thumbs);
+thumbs.belongsTo(users);
+
+// comments
+users.hasMany(comments);
+comments.belongsTo(users);
+
+module.exports = users

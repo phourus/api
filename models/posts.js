@@ -1,16 +1,19 @@
 var types = require('sequelize');
 var db = require('../db');
 
+var users = require('./users');
+var tags = require('./tags');
+var links = require('./links');
+var locations = require('./locations');
 var views = require('./views');
-var comments = require('./comments');
 var thumbs = require('./thumbs');
+var comments = require('./comments');
 
-module.exports = db.define('posts', {
+var posts = db.define('posts', {
     // Common
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true},
     created: {type: types.DATE, defaultValue: types.NOW},
     modified: types.DATE,
-    user_id: {type: types.INTEGER},
     privacy: {type: types.ENUM('public', 'phourus', 'private'), defaultValue: 'private'},
     type: types.ENUM('blog', 'event', 'subject', 'question', 'debate', 'poll', 'quote', 'belief'),
     title: types.STRING,
@@ -21,39 +24,30 @@ module.exports = db.define('posts', {
     lng: types.FLOAT,
     
     // Stats
-    comments: {type: types.INTEGER, defaultValue: 0},
-    views: {type: types.INTEGER, defaultValue: 0},
-    thumbs: {type: types.INTEGER, defaultValue: 0},
+    totalComments: {type: types.INTEGER, defaultValue: 0},
+    totalViews: {type: types.INTEGER, defaultValue: 0},
+    totalThumbs: {type: types.INTEGER, defaultValue: 0},
     popularity: {type: types.INTEGER, defaultValue: 0},
     influence: {type: types.INTEGER, defaultValue: 0},
-    
-    // Composed
-/*
-    address: ,
-    links: ,
-    tags: ,
-*/
-    
+        
     // Meta
-    question_id: types.INTEGER,
-    bill_id: types.INTEGER,
-    debate_id: types.INTEGER,
-    rep_id: types.INTEGER,
-    address_id: types.INTEGER,
-    question: types.STRING,
-    deadline: types.DATE,
-    date: types.DATE,
-    time: types.DATE,
+    parent_id: types.INTEGER,
     difficulty: {type: types.ENUM('easy', 'medium', 'hard'), allowNull: true},
     positive: types.BOOLEAN,
-    scope: {type: types.ENUM('local', 'county', 'state', 'national'), allowNull: true},
+    scope: {type: types.ENUM('local', 'county', 'state', 'national', 'international'), allowNull: true},
     zip: types.STRING(5),
     author: types.STRING,
     vote: types.BOOLEAN
 }, {
     classMethods: {
         single: function (id) {
-            return this.findOne(id);
+            return this.findOne({where: {id: id}, 
+                include: [
+                    {model: users, as: 'user'}, 
+                    {model: tags, as: 'tags'}, 
+                    {model: links, as: 'links'}
+                ]
+            });
         },
         collection: function (params) {
             return this.findAndCountAll(this.queryize(params));
@@ -69,23 +63,23 @@ module.exports = db.define('posts', {
             if (this.SESSION_USER === false) {
                 return 401;
             }
-            return this.update(model, {where: {id: id, user_id: this.SESSION_USER}});
+            return this.update(model, {where: {id: id, userId: this.SESSION_USER}});
         },
         remove: function (id) {
             if (this.SESSION_USER === false) {
                 return 401;
             }
-            return this.destroy({where: {id: id, user_id: this.SESSION_USER}});
+            return this.destroy({where: {id: id, userId: this.SESSION_USER}});
         },
         account: function () {
             if (this.SESSION_USER === false) {
                 return 401;
             }
-            return this.findAndCountAll({where: {user_id: this.SESSION_USER}});
+            return this.findAndCountAll({where: {userId: this.SESSION_USER}});
         },
         updateStats: function (id) {
               var self, where, viewTotal, commentTotal, thumbTotal;
-              where = {where: {post_id: id}};
+              where = {where: {postId: id}};
               wherePost = {where: {id: id}};
               self = this;
               // views
@@ -135,7 +129,7 @@ module.exports = db.define('posts', {
             
             // USER_ID
             if (params.user_id) {
-                query.where.user_id = params.user_id;
+                query.where.userId = params.user_id;
             }
             
             // SEARCH
@@ -166,7 +160,39 @@ module.exports = db.define('posts', {
             /** ADVANCED **/
             // groups, location, org_id
             
+            /** USER ASSOCIATION **/
+            query.include = [
+                {model: users, as: 'user', include: [locations]}, 
+                {model: tags, as: 'tags'}, 
+                {model: links, as: 'links'},
+            ];
             return query;
         }
     }
 });
+
+// users
+// users.hasOne posts gives postId on user
+posts.belongsTo(users);
+
+// links
+posts.hasMany(links);
+links.belongsTo(posts);
+
+// tags
+posts.hasMany(tags);  
+tags.belongsTo(posts);
+
+// views
+posts.hasMany(views);
+views.belongsTo(posts);
+
+// thumbs
+posts.hasMany(thumbs);
+thumbs.belongsTo(posts);
+
+// comments  
+posts.hasMany(comments);
+comments.belongsTo(posts);
+
+module.exports = posts; 

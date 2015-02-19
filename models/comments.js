@@ -1,10 +1,9 @@
 var types = require('sequelize');
 var db = require('../db');
+//var users = require('./users');
 
-module.exports = db.define('comments', {
+var comments = db.define('comments', {
     id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true}, 
-    user_id: types.INTEGER,
-    post_id: types.INTEGER,
     content: types.TEXT
 }, {
     classMethods: {
@@ -25,8 +24,10 @@ module.exports = db.define('comments', {
             return this.destroy({where: {id: id}});
         },
         queryize: function (params) {
-            return {where: {post_id: params.post_id}};
+            //, include: [{model: users, as: 'user'}]
+            return {where: {postId: params.post_id}};
         }
     }
 });
 
+module.exports = comments;
