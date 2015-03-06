@@ -11,11 +11,13 @@
     "express": "4.0.x",
     "express-jwt": "^0.5.1",
     "jsonwebtoken": "^3.2.0",
-    "mariasql": "^0.1.21",
-    "sequelize": "^2.0.0-rc3",
+    "mariasql": "0.1.22",
+    "mysql": "^2.5.5",
+    "sequelize": "2.0.3",
     "socket.io": "^1.2.1"
   },
   "devDependencies": {
+    "babel": "^4.6.6",
     "chai": "^1.10.0",
     "chai-as-promised": "^4.1.1",
     "chance": "^0.7.3",
