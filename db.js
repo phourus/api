@@ -1,9 +1,10 @@
+var config = require("./config").get('db');
 var Sequelize = require('sequelize');
-var db = 'phourus:dev';
-var username = 'root';
-var password = '';
+var db = config.name;
+var username = config.user;
+var password = config.pass;
 var config = {
-    host: 'localhost',
+    host: config.host,
     dialect: 'mariadb'
 };
 
