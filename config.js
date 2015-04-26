@@ -35,24 +35,23 @@ var conf = convict({
     "name": {
       "doc": "Database Name",
       "format": "*",
-      "default": "phourus:dev",
+      "default": "phourus-dev",
       "env": "PHOURUS_DB_NAME"
     },
-    "username": {
+    "user": {
       "doc": "Database Username",
       "format": "*",
-      "default": "phourus",
+      "default": "root",
       "env": "PHOURUS_DB_USER"
     },
-    "password": {
+    "pass": {
       "doc": "Database Password",
       "format": "*",
-      "default": "phourus:dev",
+      "default": "",
       "env": "PHOURUS_DB_PASS"
     }
   }
 });
 
 conf.validate();
-console.log(conf.toString());
 module.exports = conf;
