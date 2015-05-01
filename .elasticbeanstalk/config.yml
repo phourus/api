@@ -10,3 +10,10 @@ global:
   default_region: us-west-2
   profile: eb-cli
   sc: git
+packages:
+  yum:
+    git: []
+    openssl-devel: []
+    expat-devel: []
+    gettext-devel: []
+    zlib-devel: []
