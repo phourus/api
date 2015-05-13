@@ -12,11 +12,13 @@
     "convict": "^0.6.1",
     "express": "4.0.x",
     "express-jwt": "^0.5.1",
+    "file": "^0.2.2",
     "jsonwebtoken": "^3.2.0",
     "mariasql": "0.1.22",
     "mysql": "^2.5.5",
     "sequelize": "2.0.3",
-    "socket.io": "^1.2.1"
+    "socket.io": "^1.2.1",
+    "system": "^0.1.0"
   },
   "devDependencies": {
     "babel": "^4.6.6",
