@@ -1,19 +1,17 @@
 var ws = require('../socket').of('/reviews');
-var reviews = require('../models/reviews');
-var router = require('express').Router();
-var rest = require('../rest').use('/reviews', router);
 
-/** WEBSOCKET IMPLEMENTATION **/
+var reviews = require('../models/reviews');
+
 ws.on('connection', function (socket) {
   console.log('connected to reviews server');
-  
+
   socket.on('getSingle', function (id) {
       reviews.single(id)
         .then(function (data) {
-            socket.emit('single', data); 
+            socket.emit('single', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('getCollection', function (params) {
@@ -22,8 +20,8 @@ ws.on('connection', function (socket) {
             socket.emit('collection', data);
         })
         .catch(function () {
-            
-        });  
+
+        });
   });
   socket.on('postCreate', function (model) {
     reviews.create(model)
@@ -31,8 +29,8 @@ ws.on('connection', function (socket) {
             socket.emit('create', data);
         })
         .catch(function () {
-            
-        }); 
+
+        });
   });
   socket.on('putSave', function (id, model) {
     reviews.save(id, model)
@@ -40,7 +38,7 @@ ws.on('connection', function (socket) {
             socket.emit('save', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('delRemove', function (id) {
@@ -49,7 +47,7 @@ ws.on('connection', function (socket) {
             socket.emit('remove', data);
         })
         .catch(function () {
-            
+
         });
   });
 });

@@ -1,16 +1,13 @@
-var ws = require('../socket').of('/tags');
-var tags = require('../models/tags');
-var router = require('express').Router();
-var rest = require('../rest').use('/tags', router);
+var ws = require('../socket').of('/links');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var links = require('../models/links');
+
 ws.on('connection', function (socket) {
-  console.log('connected to tags server');
-  
+  console.log('connected to links server');
   socket.on('getSingle', function (id) {
-      tags.single(id)
+      links.single(id)
         .then(function (data) {
-            socket.emit('single', 200, data); 
+            socket.emit('single', data);
         })
         .catch(function (err) {
             console.error(err);
@@ -18,29 +15,29 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('getCollection', function (params) {
-      tags.collection(params)
+      links.collection(params)
         .then(function (data) {
-            socket.emit('collection', 200, data);
+            socket.emit('collection', data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('collection', 503);
-        });  
+        });
   });
   socket.on('postAdd', function (model) {
-    tags.add(model)
+    links.add(model)
         .then(function (data) {
-            socket.emit('add', 201, data);
+            socket.emit('add', data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('add', 503);
-        }); 
+        });
   });
   socket.on('putSave', function (id, model) {
-    tags.save(id, model)
+    links.save(id, model)
         .then(function (data) {
-            socket.emit('save', 204, data);
+            socket.emit('save', data);
         })
         .catch(function (err) {
             console.error(err);
@@ -48,9 +45,9 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('delRemove', function (id) {
-    tags.remove(id)
+    links.remove(id)
         .then(function (data) {
-            socket.emit('remove', 204, data);
+            socket.emit('remove', data);
         })
         .catch(function (err) {
             console.error(err);

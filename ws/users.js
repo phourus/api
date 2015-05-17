@@ -1,37 +1,42 @@
-var ws = require('../socket').of('/comments');
-var comments = require('../models/comments');
-var router = require('express').Router();
-var rest = require('../rest').use('/comments', router);
+var ws = require('../socket').of('/users');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var users = require('../models/users');
+
 ws.on('connection', function (socket) {
-  console.log('connected to comments server');
-  comments.SESSION_USER = socket.request.user_id;
-  
-  socket.on('getCollection', function (params) {
-      console.log(params);
-      comments.collection(params)
+  console.log('connected to users server');
+
+  socket.on('getSingle', function (id) {
+      users.single(id)
         .then(function (data) {
-            console.log(data);
+            socket.emit('single', 200, data);
+        })
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('single', 503);
+        });
+  });
+  socket.on('getCollection', function (params) {
+      users.collection(params)
+        .then(function (data) {
             socket.emit('collection', 200, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('collection', 503);
-        });  
+        });
   });
-  socket.on('postAdd', function (model) {
-    comments.add(model)
+  socket.on('postCreate', function (model) {
+    users.create(model)
         .then(function (data) {
-            socket.emit('add', 201, data);
+            socket.emit('create', 201, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('add', 503);
-        }); 
+            socket.emit('create', 503);
+        });
   });
   socket.on('putSave', function (id, model) {
-    comments.save(id, model)
+    users.save(id, model)
         .then(function (data) {
             socket.emit('save', 204, data);
         })
@@ -41,7 +46,7 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('delRemove', function (id) {
-    comments.remove(model)
+    users.remove(model)
         .then(function (data) {
             socket.emit('remove', 204, data);
         })

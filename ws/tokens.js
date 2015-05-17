@@ -1,19 +1,17 @@
 var ws = require('../socket').of('/tokens');
-var tokens = require('../models/tokens');
-var router = require('express').Router();
-var rest = require('../rest').use('/tokens', router);
 
-/** WEBSOCKET IMPLEMENTATION **/
+var tokens = require('../models/tokens');
+
 ws.on('connection', function (socket) {
   console.log('connected to tokens server');
-  
+
   socket.on('getSingle', function (id) {
       tokens.single(id)
         .then(function (data) {
-            socket.emit('single', data); 
+            socket.emit('single', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('getCollection', function (params) {
@@ -22,8 +20,8 @@ ws.on('connection', function (socket) {
             socket.emit('collection', data);
         })
         .catch(function () {
-            
-        });  
+
+        });
   });
   socket.on('postCreate', function (model) {
     tokens.create(model)
@@ -31,8 +29,8 @@ ws.on('connection', function (socket) {
             socket.emit('create', data);
         })
         .catch(function () {
-            
-        }); 
+
+        });
   });
   socket.on('putSave', function (id, model) {
     tokens.save(id, model)
@@ -40,7 +38,7 @@ ws.on('connection', function (socket) {
             socket.emit('save', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('delRemove', function (id) {
@@ -49,7 +47,7 @@ ws.on('connection', function (socket) {
             socket.emit('remove', data);
         })
         .catch(function () {
-            
+
         });
   });
 });

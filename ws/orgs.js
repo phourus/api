@@ -1,55 +1,53 @@
-var ws = require('../socket').of('/passwords');
-var passwords = require('../models/passwords');
-var router = require('express').Router();
-var rest = require('../rest').use('/passwords', router);
+var ws = require('../socket').of('/orgs');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var orgs = require('../models/orgs');
+
 ws.on('connection', function (socket) {
-  console.log('connected to passwords server');
-  
+  console.log('connected to orgs server');
+
   socket.on('getSingle', function (id) {
-      passwords.single(id)
+      orgs.single(id)
         .then(function (data) {
-            socket.emit('single', data); 
+            socket.emit('single', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('getCollection', function (params) {
-      passwords.collection(params)
+      orgs.collection(params)
         .then(function (data) {
             socket.emit('collection', data);
         })
         .catch(function () {
-            
-        });  
+
+        });
   });
   socket.on('postCreate', function (model) {
-    passwords.create(model)
+    orgs.create(model)
         .then(function (data) {
             socket.emit('create', data);
         })
         .catch(function () {
-            
-        }); 
+
+        });
   });
   socket.on('putSave', function (id, model) {
-    passwords.save(id, model)
+    orgs.save(id, model)
         .then(function (data) {
             socket.emit('save', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('delRemove', function (id) {
-    passwords.remove(model)
+    orgs.remove(model)
         .then(function (data) {
             socket.emit('remove', data);
         })
         .catch(function () {
-            
+
         });
   });
 });

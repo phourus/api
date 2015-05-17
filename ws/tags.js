@@ -1,15 +1,14 @@
-var ws = require('../socket').of('/clout');
-var clout = require('../models/clout');
-var router = require('express').Router();
-var rest = require('../rest').use('/clout', router);
+var ws = require('../socket').of('/tags');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var tags = require('../models/tags');
+
 ws.on('connection', function (socket) {
-  console.log('connected to clout server');
+  console.log('connected to tags server');
+
   socket.on('getSingle', function (id) {
-      clout.single(id)
+      tags.single(id)
         .then(function (data) {
-            socket.emit('single', 200, data); 
+            socket.emit('single', 200, data);
         })
         .catch(function (err) {
             console.error(err);
@@ -17,7 +16,7 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('getCollection', function (params) {
-      clout.collection(params)
+      tags.collection(params)
         .then(function (data) {
             socket.emit('collection', 200, data);
         })
@@ -26,18 +25,18 @@ ws.on('connection', function (socket) {
             socket.emit('collection', 503);
         });
   });
-  socket.on('postCreate', function (model) {
-    clout.create(model)
+  socket.on('postAdd', function (model) {
+    tags.add(model)
         .then(function (data) {
-            socket.emit('create', 201, data);
+            socket.emit('add', 201, data);
         })
         .catch(function (err) {
             console.error(err);
-            socket.emit('create', 503);
+            socket.emit('add', 503);
         });
   });
   socket.on('putSave', function (id, model) {
-    clout.save(id, model)
+    tags.save(id, model)
         .then(function (data) {
             socket.emit('save', 204, data);
         })
@@ -47,9 +46,9 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('delRemove', function (id) {
-    clout.remove(model)
+    tags.remove(id)
         .then(function (data) {
-            socket.emit('remove', 202, data);
+            socket.emit('remove', 204, data);
         })
         .catch(function (err) {
             console.error(err);

@@ -1,18 +1,13 @@
-var ws = require('../socket').of('/users');
-var users = require('../models/users');
-var views = require('../models/views');
-var router = require('express').Router();
-var rest = require('../rest').use('/users', router);
+var ws = require('../socket').of('/clout');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var clout = require('../models/clout');
+
 ws.on('connection', function (socket) {
-  console.log('connected to users server');
-  
+  console.log('connected to clout server');
   socket.on('getSingle', function (id) {
-      users.single(id)
+      clout.single(id)
         .then(function (data) {
-            socket.emit('single', 200, data); 
-            views.add({user_id: id});
+            socket.emit('single', 200, data);
         })
         .catch(function (err) {
             console.error(err);
@@ -20,43 +15,43 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('getCollection', function (params) {
-      users.collection(params)
+      clout.collection(params)
         .then(function (data) {
             socket.emit('collection', 200, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('collection', 503);
-        });  
+        });
   });
   socket.on('postCreate', function (model) {
-    users.create(model)
+    clout.create(model)
         .then(function (data) {
             socket.emit('create', 201, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('create', 503);
-        });  
+        });
   });
   socket.on('putSave', function (id, model) {
-    users.save(id, model)
+    clout.save(id, model)
         .then(function (data) {
             socket.emit('save', 204, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('save', 503);
-        });  
+        });
   });
   socket.on('delRemove', function (id) {
-    users.remove(model)
+    clout.remove(model)
         .then(function (data) {
-            socket.emit('remove', 204, data);
+            socket.emit('remove', 202, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('remove', 503);
-        });  
+        });
   });
 });

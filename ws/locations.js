@@ -1,20 +1,18 @@
 var ws = require('../socket').of('/locations');
-var locations = require('../models/locations');
-var router = require('express').Router();
-var rest = require('../rest').use('/locations', router);
 
-/** WEBSOCKET IMPLEMENTATION **/
+var locations = require('../models/locations');
+
 ws.on('connection', function (socket) {
   console.log('connected to locations server');
-  
+
   socket.on('getSingle', function (id) {
       locations.single(id)
         .then(function (data) {
-            socket.emit('single', data); 
+            socket.emit('single', data);
         })
         .catch(function (err) {
             console.log(err);
-            
+
         });
   });
   socket.on('getCollection', function (params) {
@@ -23,8 +21,8 @@ ws.on('connection', function (socket) {
             socket.emit('collection', data);
         })
         .catch(function () {
-            
-        });  
+
+        });
   });
   socket.on('postCreate', function (model) {
     locations.create(model)
@@ -32,8 +30,8 @@ ws.on('connection', function (socket) {
             socket.emit('create', data);
         })
         .catch(function () {
-            
-        }); 
+
+        });
   });
   socket.on('putSave', function (id, model) {
     locations.save(id, model)
@@ -41,7 +39,7 @@ ws.on('connection', function (socket) {
             socket.emit('save', data);
         })
         .catch(function () {
-            
+
         });
   });
   socket.on('delRemove', function (id) {
@@ -50,7 +48,7 @@ ws.on('connection', function (socket) {
             socket.emit('remove', data);
         })
         .catch(function () {
-            
+
         });
   });
 });

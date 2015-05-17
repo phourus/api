@@ -1,20 +1,15 @@
-var ws = require('../socket').of('/posts');
-var posts = require('../models/posts');
-var views = require('../models/views');
-var router = require('express').Router();
-var rest = require('../rest').use('/posts', router);
+var ws = require('../socket').of('/thumbs');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var thumbs = require('../models/thumbs');
+
 ws.on('connection', function (socket) {
-  console.log('connected to posts server');
-  posts.SESSION_USER = socket.request.user_id;
-  
+  console.log('connected to thumbs server');
+  thumbs.SESSION_USER = socket.request.user_id;
+
   socket.on('getSingle', function (id) {
-      posts.single(id)
+      thumbs.single(id)
         .then(function (data) {
-            socket.emit('single', 200, data); 
-            posts.updateStats(id);
-            views.add({postId: id});
+            socket.emit('single', 200, data);
         })
         .catch(function (err) {
             console.error(err);
@@ -22,8 +17,7 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('getCollection', function (params) {
-      console.log(socket.request.user_id);
-      posts.collection(params)
+      thumbs.collection(params)
         .then(function (data) {
             socket.emit('collection', 200, data);
         })
@@ -33,18 +27,17 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('postAdd', function (model) {
-    posts.add(model)
+    thumbs.add(model)
         .then(function (data) {
-            console.log(data);
             socket.emit('add', 201, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('add', 503);
-        }); 
+        });
   });
   socket.on('putSave', function (id, model) {
-    posts.save(id, model)
+    thumbs.save(id, model)
         .then(function (data) {
             socket.emit('save', 204, data);
         })
@@ -54,23 +47,13 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('delRemove', function (id) {
-    posts.remove(model)
+    thumbs.remove(id)
         .then(function (data) {
-            socket.emit('remove', 202, data);
+            socket.emit('remove', 204, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('remove', 503);
-        });
-  });
-  socket.on('getAccount', function () {
-     posts.account() 
-        .then(function (data) {
-            socket.emit('account', 200, data);
-        })
-        .catch(function (err) {
-            console.error(err);
-            socket.emit('account', 503);
         });
   });
 });

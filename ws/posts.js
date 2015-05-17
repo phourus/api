@@ -1,17 +1,16 @@
-var ws = require('../socket').of('/thumbs');
-var thumbs = require('../models/thumbs');
-var router = require('express').Router();
-var rest = require('../rest').use('/thumbs', router);
+var ws = require('../socket').of('/posts');
 
-/** WEBSOCKET IMPLEMENTATION **/
+var posts = require('../models/posts');
+
 ws.on('connection', function (socket) {
-  console.log('connected to thumbs server');
-  thumbs.SESSION_USER = socket.request.user_id;
-  
+  console.log('connected to posts server');
+  posts.SESSION_USER = socket.request.user_id;
+
   socket.on('getSingle', function (id) {
-      thumbs.single(id)
+      posts.single(id)
         .then(function (data) {
-            socket.emit('single', 200, data); 
+            socket.emit('single', 200, data);
+            posts.updateStats(id);
         })
         .catch(function (err) {
             console.error(err);
@@ -19,27 +18,29 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('getCollection', function (params) {
-      thumbs.collection(params)
+      console.log(socket.request.user_id);
+      posts.collection(params)
         .then(function (data) {
             socket.emit('collection', 200, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('collection', 503);
-        });  
+        });
   });
   socket.on('postAdd', function (model) {
-    thumbs.add(model)
+    posts.add(model)
         .then(function (data) {
+            console.log(data);
             socket.emit('add', 201, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('add', 503);
-        }); 
+        });
   });
   socket.on('putSave', function (id, model) {
-    thumbs.save(id, model)
+    posts.save(id, model)
         .then(function (data) {
             socket.emit('save', 204, data);
         })
@@ -49,13 +50,23 @@ ws.on('connection', function (socket) {
         });
   });
   socket.on('delRemove', function (id) {
-    thumbs.remove(id)
+    posts.remove(model)
         .then(function (data) {
-            socket.emit('remove', 204, data);
+            socket.emit('remove', 202, data);
         })
         .catch(function (err) {
             console.error(err);
             socket.emit('remove', 503);
+        });
+  });
+  socket.on('getAccount', function () {
+     posts.account()
+        .then(function (data) {
+            socket.emit('account', 200, data);
+        })
+        .catch(function (err) {
+            console.error(err);
+            socket.emit('account', 503);
         });
   });
 });
