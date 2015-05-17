@@ -3,7 +3,7 @@ var rest = require('../rest').use('/comments', router);
 
 var comments = require('../models/comments');
 
-comments.get('', (req, res) {
+router.get('', (req, res) => {
   var params;
   comments.collection(params)
   .then(function (data) {
@@ -14,7 +14,7 @@ comments.get('', (req, res) {
       res.send(503);
   });
 });
-comments.post('', (req, res) {
+router.post('', (req, res) => {
   var model;
   comments.add(model)
   .then(function (data) {
@@ -25,7 +25,7 @@ comments.post('', (req, res) {
       res.send(503);
   });
 });
-comments.put('/:id', (req, res) {
+router.put('/:id', (req, res) => {
   var id, model;
   comments.save(id, model)
   .then(function (data) {
@@ -36,7 +36,7 @@ comments.put('/:id', (req, res) {
       res.send(503);
   });
 });
-comments.delete('/:id', (req, res) {
+router.delete('/:id', (req, res) => {
   var id;
   comments.remove(id)
   .then(function (data) {

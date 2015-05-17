@@ -11,8 +11,6 @@ var thumbs = require('../models/thumbs');
 //var favs = require('../models/favs');
 var jwt = require('jsonwebtoken');
 
-var SESSION_USER = socket.request.user_id;
-
 router.post('/register', (req, res) => {
   var email, password
   return db.transaction(function (t) {

@@ -47,7 +47,7 @@ router.put('/:id', (req, res) => {
     res.send(503);
   });
 });
-router.delete('/:id', (req, res) {
+router.delete('/:id', (req, res) => {
   var id;
   reviews.remove(id)
   .then(function (data) {

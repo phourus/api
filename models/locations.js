@@ -1,7 +1,7 @@
 var types = require('sequelize');
 var db = require('../db');
 
-module.exports = locations = db.define('locations', {
+module.exports = db.define('locations', {
   id: {type: types.INTEGER, autoIncrement: true, unique: true, primaryKey: true},
   street: types.STRING(120),
   city: types.STRING(40),
