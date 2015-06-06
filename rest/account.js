@@ -1,6 +1,6 @@
 var router = require('express').Router();
 var rest = require('../rest').use('/account', router);
-
+var config = require('../config');
 var db = require('../db');
 var users = require('../models/users');
 var passwords = require('../models/passwords');
@@ -12,7 +12,7 @@ var thumbs = require('../models/thumbs');
 var jwt = require('jsonwebtoken');
 
 router.post('/register', (req, res) => {
-  var email, password
+  var email, password;
   return db.transaction(function (t) {
     return users.create({email: email}, {transaction: t})
       .then(function (user) {
@@ -31,35 +31,39 @@ router.post('/register', (req, res) => {
   });
 });
 router.post('/login', (req, res) => {
-    var username, password;
+    let auth = req.headers.authorization;
+    let token = auth.split(' ')[1];
+    let decoded = new Buffer(token, 'base64').toString().split(':');
+    let username = decoded[0];
+    let password = decoded[1];
     return users.getID (username)
       .then(function (data) {
           if (data === null) {
-              console.error('username not found');
-              res.send(503);
-              //done();
+            console.error('username not found');
+            res.send(404);
+            //done();
           }
           return data.id;
       })
       .then(function (user_id) {
-          return passwords.authorize(user_id, password)
-              .then(function (data) {
-                  if (data.count !== 1) {
-                      console.error('user_id + hash not found');
-                      res.send(503);
-                  }
-                  return user_id;
-              });
+        return passwords.authorize(user_id, password)
+          .then(function (data) {
+            if (data.count !== 1) {
+              console.error('user_id + hash not found');
+              res.send(404);
+            }
+            return user_id;
+          });
       })
       .then(function (result) {
-          if (result !== 0) {
-              result = jwt.sign({user_id: result}, '123abc');
-          }
-          res.send(200, result);
+        if (result !== 0) {
+          result = jwt.sign({user_id: result}, config.get('salt'));
+        }
+        res.send(200, result);
       })
       .catch(function (err) {
-          console.error(err);
-          res.send(503);
+        console.error(err);
+        res.send(503);
       });
 });
 router.get('', (req, res) => {
