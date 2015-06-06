@@ -1,0 +1,19 @@
+branch-defaults:
+  dev:
+    environment: staging-api
+  master:
+    environment: production-api
+global:
+  application_name: phourus
+  default_ec2_keyname: null
+  default_platform: 64bit Amazon Linux 2015.03 v1.3.1 running Node.js
+  default_region: us-west-2
+  profile: eb-cli
+  sc: git
+packages:
+  yum:
+    git: []
+    openssl-devel: []
+    expat-devel: []
+    gettext-devel: []
+    zlib-devel: []
