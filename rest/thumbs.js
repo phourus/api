@@ -15,7 +15,7 @@ router.get('/:id', (req, res) => {
   });
 });
 router.get('', (req, res) => {
-  let params;
+  let params = req.query;
   thumbs.collection(params)
   .then(function (data) {
     res.send(200, data);

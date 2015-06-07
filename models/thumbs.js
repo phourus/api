@@ -22,7 +22,18 @@ module.exports = db.define('thumbs', {
       return this.destroy({where: {id: id}});
     },
     queryize: function (params) {
-      return {};
+      // default to zero comments otherwise missing params will get all
+      var query = {
+        where: {
+          id: 0
+        }
+      };
+      if (params.post_id) {
+        query.where = {
+          postId: params.post_id
+        }
+      }
+      return query;
     }
   }
 });

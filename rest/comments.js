@@ -4,7 +4,7 @@ var rest = require('../rest').use('/comments', router);
 var comments = require('../models/comments');
 
 router.get('', (req, res) => {
-  var params;
+  var params = req.query;
   comments.collection(params)
   .then(function (data) {
       res.send(200, data);
