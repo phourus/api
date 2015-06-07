@@ -67,14 +67,16 @@ router.post('/login', (req, res) => {
       });
 });
 router.get('', (req, res) => {
-  var id, model;
-  users.single(SESSION_USER)
+  if (!req.user_id) {
+    return res.send(401);
+  }
+  users.single(req.user_id)
   .then(function (data) {
-      res.send(200, data);
+    res.send(200, data);
   })
   .catch(function (err) {
-      console.log(err);
-      res.send(503);
+    console.log(err);
+    res.send(503);
   });
 });
 router.put('', function (model) {
@@ -109,14 +111,17 @@ router.put('/password', function (current, changed) {
       res.send(503);
   });
 });
-router.get('/notifications', function (params) {
-   posts.findAll({where: {userId: SESSION_USER}})
+router.get('/notifications', (req, res) => {
+  if (!req.user_id) {
+    return res.send(401);
+  }
+   posts.findAll({where: {userId: req.user_id}})
   .then(function (data) {
       var promises = [];
       var list = [1,2,3];
       // my profile views
       promises.push(views.findAll({
-          where: {userId: SESSION_USER},
+          where: {userId: req.user_id},
           include: [
               {model: users, as: "viewer"}
           ]
@@ -150,11 +155,14 @@ router.get('/notifications', function (params) {
       res.send(503);
   });
 });
-router.get('/history', function (params) {
-  var promises = [];
+router.get('/history', (req, res) => {
+  if (!req.user_id) {
+    return res.send(401);
+  }
+  let promises = [];
   // posts, users and orgs I've viewed
   promises.push(views.findAll({
-      where: {viewerId: SESSION_USER},
+      where: {viewerId: req.user_id},
       include: [
           //{model: users, as: "user"},
           {model: posts, as: "post"}
@@ -162,14 +170,14 @@ router.get('/history', function (params) {
   }));
   // comments I've made
   promises.push(comments.findAll({
-      where: {userId: SESSION_USER},
+      where: {userId: req.user_id},
       include: [
           {model: posts, as: "post", include: [{model: users, as: "user"}]}
       ]
   }));
   // thumbs I gave
   promises.push(thumbs.findAll({
-      where: {userId: SESSION_USER},
+      where: {userId: req.user_id},
       include: [
           {model: posts, as: "post", include: [{model: users, as: "user"}]}
       ]
